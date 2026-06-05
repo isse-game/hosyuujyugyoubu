@@ -1,0 +1,1617 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>補習授業部 赤点回避大作戦</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: sans-serif;
+  background: #f7e6ef;
+  text-align: center;
+}
+
+.game {
+  max-width: 900px;
+  margin: 25px auto;
+  background: #fff7fb;
+  padding: 20px;
+  border-radius: 18px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+}
+
+h1 {
+  color: #d94f8c;
+  margin-bottom: 15px;
+}
+
+/* =====================
+   タイトル画面
+===================== */
+
+#titleScreen {
+  position: relative;
+}
+
+.title-image-wrap {
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 4px solid #f2a9c8;
+}
+
+#titleImage {
+  display: block;
+  width: 100%;
+}
+
+.title-buttons {
+  margin-top: 18px;
+}
+
+.title-buttons button {
+  width: 70%;
+  margin: 10px auto;
+  padding: 14px;
+  font-size: 20px;
+  border-radius: 16px;
+  border: 3px solid #f19ac0;
+  background: #ffd6e8;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.title-buttons button:hover {
+  background: #ffb6d5;
+}
+
+/* =====================
+   ゲーム画面
+===================== */
+
+#gameScreen {
+  display: none;
+}
+
+.scene {
+  position: relative;
+  min-height: 460px;
+  background: linear-gradient(#f9d7e7, #fbeef5);
+  border-radius: 18px;
+  overflow: hidden;
+  border: 4px solid #f2a9c8;
+}
+
+#haikei {
+  position: absolute;
+  left: 20px;
+  bottom: 0;
+
+  width: 300px;
+  height: 300px;
+
+  object-fit: cover;
+  z-index: 0;
+}
+
+/* 羽 */
+#leftWing,
+#rightWing {
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+  transition: transform 0.22s ease;
+}
+
+#leftWing {
+  left: 100px;
+  bottom: 95px;
+  width: 75px;
+  transform-origin: right center;
+}
+
+#rightWing {
+  left: 160px;
+  bottom: 95px;
+  width: 75px;
+  transform-origin: left center;
+}
+
+/* コハル */
+#koharu {
+  position: absolute;
+  left: 55px;
+  bottom: 35px;
+  width: 210px;
+  max-width: 42%;
+  z-index: 2;
+}
+
+/* VS相手 */
+#enemyCharacter {
+  position: absolute;
+  left: 270px;
+  bottom: 20px;
+  width: 190px;
+  z-index: 2;
+  display: none;
+}
+
+/* VSモード時の敵キャラ位置 */
+body.vs-mode #enemyCharacter {
+  position: absolute !important;
+  left: auto !important;
+  right: -40px !important;
+  bottom: 15px !important;
+  width: 210px !important;
+  z-index: 4 !important;
+}
+
+#enemyBg {
+
+  position: absolute;
+
+  right: 0;
+  bottom: 0;
+
+  width: 200px;
+  height: 200px;
+
+  object-fit: contain;
+
+  z-index: 1;
+
+  display: none;
+}
+
+body.vs-mode #enemyBg {
+  right: 0;
+  bottom: 0;
+  width: 250px;
+  height: 250px;
+  object-fit: cover;
+  z-index: 1;
+}
+
+/* 黒板 */
+.blackboard {
+  position: absolute;
+  right: 35px;
+  top: 35px;
+  width: 520px;
+  min-height: 245px;
+  background: #1f5a43;
+  border: 12px solid #8b5a2b;
+  border-radius: 14px;
+  box-shadow: inset 0 0 12px rgba(0,0,0,0.4);
+  color: white;
+  padding: 20px;
+  box-sizing: border-box;
+  z-index: 3;
+}
+
+.blackboard::after {
+  content: "";
+  position: absolute;
+  left: 30px;
+  right: 30px;
+  bottom: -18px;
+  height: 10px;
+  background: #c28b4c;
+  border-radius: 4px;
+}
+
+#status {
+  font-weight: bold;
+  color: #ffeaa7;
+}
+
+#question {
+  font-size: 25px;
+  line-height: 1.5;
+}
+
+#choices {
+  margin-top: 20px;
+}
+
+button {
+  display: block;
+  width: 82%;
+  margin: 10px auto;
+  padding: 14px;
+  font-size: 18px;
+  border-radius: 14px;
+  border: 3px solid #f19ac0;
+  background: #ffd6e8;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+button:hover {
+  background: #ffb6d5;
+}
+
+#result {
+  font-size: 21px;
+  font-weight: bold;
+  min-height: 30px;
+  color: #d94f8c;
+}
+
+#score {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.mode-info {
+  font-size: 17px;
+  font-weight: bold;
+  color: #7a3155;
+}
+
+.back-button {
+  width: 45%;
+  background: #eee;
+  border-color: #aaa;
+}
+
+body.vs-mode .blackboard {
+  left: 200px;
+  right: auto;
+  top: 35px;
+  width: 500px;
+  z-index: 3;
+}
+
+/* スマホ対応 */
+@media (max-width: 700px) {
+
+  .game {
+    margin: 10px;
+    padding: 12px;
+  }
+
+  .title-buttons button {
+    width: 92%;
+    font-size: 17px;
+  }
+
+  .scene {
+    min-height: 620px;
+  }
+
+  #haikei {
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 360px;
+    object-fit: cover;
+  }
+
+  #koharu {
+    left: 50%;
+    bottom: 30px;
+    transform: translateX(-50%);
+    width: 230px;
+    max-width: 85%;
+  }
+
+  #leftWing {
+    left: 50%;
+    bottom: 190px;
+    width: 95px;
+    margin-left: -95px;
+  }
+
+  #rightWing {
+    left: 50%;
+    bottom: 190px;
+    width: 95px;
+    margin-left: -35px;
+  }
+
+  #enemyCharacter {
+    right: 10px;
+    left: auto;
+    bottom: 5px;
+    width: 150px;
+  }
+
+  body.vs-mode #enemyCharacter {
+   left: auto;
+   right: -60px;
+   bottom: 15px;
+   width: 210px;
+   z-index: 4;
+  }
+
+  .blackboard {
+    left: 20px;
+    right: 20px;
+    top: 20px;
+    width: auto;
+  }
+body.vs-mode #enemyCharacter {
+  left: auto;
+  right: -40px;
+  bottom: 15px;
+  width: 210px;
+  z-index: 4;
+}
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="game">
+
+  <!-- タイトル画面 -->
+  <div id="titleScreen">
+
+    <div class="title-image-wrap">
+      <img id="titleImage" src="images/taitoru.png">
+    </div>
+
+    <div class="title-buttons">
+
+      <button onclick="selectMode('akaten')">
+        赤点回避モード
+      </button>
+
+      <button onclick="selectMode('easy')">
+        VSモード：かんたん
+      </button>
+
+      <button onclick="selectMode('normal')">
+        VSモード：ふつう
+      </button>
+
+      <button onclick="selectMode('hard')">
+        VSモード：むずかしい
+      </button>
+
+      <button onclick="selectMode('hell')">
+        VSモード：地獄
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- ゲーム画面 -->
+  <div id="gameScreen">
+
+    <h1 id="modeTitle">
+      補習授業部 赤点回避大作戦！
+    </h1>
+
+    <p class="mode-info" id="modeInfo"></p>
+
+    <div class="scene">
+
+      <img id="haikei" src="images/haikei.png">
+
+      <!-- 羽 -->
+      <img
+        id="leftWing"
+        src="images/wing_left.png">
+
+      <img
+        id="rightWing"
+        src="images/wing_right.png">
+
+      <!-- コハル -->
+      <img
+        id="koharu"
+        src="images/koharu_normal.png">
+
+     <!-- VS背景 -->
+     <img
+        id="enemyBg">
+
+     <!-- VS相手 -->
+     <img
+        id="enemyCharacter">
+
+      <!-- 黒板 -->
+      <div class="blackboard">
+
+        <p id="status">
+          第1問
+        </p>
+
+        <h2 id="question">
+          問題文
+        </h2>
+
+      </div>
+
+    </div>
+
+    <div id="choices"></div>
+
+    <p id="result"></p>
+
+    <p id="score"></p>
+
+    <button
+      class="back-button"
+      onclick="backToTitle()">
+
+      タイトルへ戻る
+
+    </button>
+
+  </div>
+
+</div>
+
+<script>
+
+/* =====================
+   モード設定
+===================== */
+
+let currentMode = "akaten";
+
+const modeSettings = {
+
+  akaten: {
+    name: "赤点回避モード",
+    total: 10,
+    clearRate: 0.6,
+
+    normal: 10,
+    exam: 0,
+    high: 0,
+
+    enemy: null
+  },
+
+  easy: {
+    name: "VSモード：かんたん",
+
+    total: 15,
+    clearRate: 0.6,
+
+    normal: 11,
+    exam: 4,
+    high: 0,
+
+    enemy: "azusa"
+  },
+
+  normal: {
+    name: "VSモード：ふつう",
+
+    total: 20,
+    clearRate: 0.7,
+
+    normal: 8,
+    exam: 10,
+    high: 2,
+
+    enemy: "hanako"
+  },
+
+  hard: {
+    name: "VSモード：むずかしい",
+
+    total: 30,
+    clearRate: 0.8,
+
+    normal: 3,
+    exam: 18,
+    high: 9,
+
+    enemy: "hihumi"
+  },
+
+  hell: {
+    name: "VSモード：地獄",
+
+    total: 40,
+    clearRate: 0.9,
+
+    normal: 0,
+    exam: 12,
+    high: 28,
+
+    enemy: "majimehanako"
+  }
+
+};
+
+/* =====================
+   VSキャラ画像
+===================== */
+
+const enemyImages = {
+
+  azusa: [
+    "images/azusa1.png",
+    "images/azusa2.png"
+  ],
+
+  hanako: [
+    "images/hanako1.png",
+    "images/hanako2.png"
+  ],
+
+  hihumi: [
+    "images/hihumi1.png",
+    "images/hihumi2.png"
+  ],
+
+  majimehanako: [
+    "images/majimehanako1.png",
+    "images/majimehanako2.png"
+  ]
+
+};
+
+const enemyBackgrounds = {
+
+  azusa:
+    "images/azusa_bg.png",
+
+  hanako:
+    "images/hanako_bg.png",
+
+  hihumi:
+    "images/hihumi_bg.png",
+
+  majimehanako:
+    "images/majimehanako_bg.png"
+
+};
+
+/* =====================
+   今までの問題
+===================== */
+
+const normalQuestions = [
+
+  // =====================
+  // 文系
+  // =====================
+
+  {
+    genre: "文系",
+    question: "鎌倉幕府を開いた人物は？",
+    choices: ["足利尊氏","源頼朝","徳川家康","平清盛"],
+    answer: 1
+  },
+
+  {
+    genre: "文系",
+    question: "室町幕府を開いた人物は？",
+    choices: ["源頼朝","豊臣秀吉","足利尊氏","北条時宗"],
+    answer: 2
+  },
+
+  {
+    genre: "文系",
+    question: "江戸幕府を開いた人物は？",
+    choices: ["織田信長","豊臣秀吉","徳川吉宗","徳川家康"],
+    answer: 3
+  },
+
+  {
+    genre: "文系",
+    question: "大政奉還を行った人物は？",
+    choices: ["徳川慶喜","坂本龍馬","西郷隆盛","勝海舟"],
+    answer: 0
+  },
+
+  {
+    genre: "文系",
+    question: "『源氏物語』の作者は？",
+    choices: ["清少納言","小野小町","紫式部","和泉式部"],
+    answer: 2
+  },
+
+  {
+    genre: "文系",
+    question: "『枕草子』の作者は？",
+    choices: ["紫式部","清少納言","紀貫之","吉田兼好"],
+    answer: 1
+  },
+
+  {
+    genre: "文系",
+    question: "『徒然草』の作者は？",
+    choices: ["鴨長明","松尾芭蕉","吉田兼好","紀貫之"],
+    answer: 2
+  },
+
+  {
+    genre: "文系",
+    question: "『奥の細道』の作者は？",
+    choices: ["小林一茶","松尾芭蕉","与謝蕪村","井原西鶴"],
+    answer: 1
+  },
+
+  {
+    genre: "文系",
+    question: "日本国憲法が施行された年は？",
+    choices: ["1945年","1951年","1947年","1937年"],
+    answer: 2
+  },
+
+  {
+    genre: "文系",
+    question: "三権分立の三権に含まれないものは？",
+    choices: ["立法","行政","報道","司法"],
+    answer: 2
+  },
+
+  // =====================
+  // 理系
+  // =====================
+
+  {
+    genre: "理系",
+    question: "√16はいくつ？",
+    choices: ["2","4","8","16"],
+    answer: 1
+  },
+
+  {
+    genre: "理系",
+    question: "2の3乗はいくつ？",
+    choices: ["6","9","8","12"],
+    answer: 2
+  },
+
+  {
+    genre: "理系",
+    question: "円周率に最も近い値は？",
+    choices: ["2.71","1.41","3.14","1.73"],
+    answer: 2
+  },
+
+  {
+    genre: "理系",
+    question: "三角形の内角の和は？",
+    choices: ["180度","90度","270度","360度"],
+    answer: 0
+  },
+
+  {
+    genre: "理系",
+    question: "水の化学式は？",
+    choices: ["CO2","O2","H2O","NaCl"],
+    answer: 2
+  },
+
+  {
+    genre: "理系",
+    question: "二酸化炭素の化学式は？",
+    choices: ["H2O","CO2","O2","N2"],
+    answer: 1
+  },
+
+  {
+    genre: "理系",
+    question: "食塩の主成分は？",
+    choices: ["炭酸カルシウム","酸化鉄","アンモニア","塩化ナトリウム"],
+    answer: 3
+  },
+
+  {
+    genre: "理系",
+    question: "酸素の元素記号は？",
+    choices: ["O","H","C","N"],
+    answer: 0
+  },
+
+  {
+    genre: "理系",
+    question: "水素の元素記号は？",
+    choices: ["O","He","H","N"],
+    answer: 2
+  },
+
+  {
+    genre: "理系",
+    question: "炭素の元素記号は？",
+    choices: ["Ca","Co","C","Cu"],
+    answer: 2
+  },
+
+  // =====================
+  // その他
+  // =====================
+
+  {
+    genre:"その他",
+    question:"日本の首都は？",
+    choices:["大阪","東京","京都","名古屋"],
+    answer:1
+  },
+
+  {
+    genre:"その他",
+    question:"日本で最も高い山は？",
+    choices:["富士山","北岳","槍ヶ岳","白山"],
+    answer:0
+  },
+
+  {
+    genre:"その他",
+    question:"1年はうるう年を除いて何日？",
+    choices:["364日","365日","366日","360日"],
+    answer:1
+  },
+
+  {
+    genre:"その他",
+    question:"オリンピックは通常何年ごとに開催される？",
+    choices:["2年","3年","4年","5年"],
+    answer:2
+  },
+
+  {
+    genre:"その他",
+    question:"世界で最も面積が広い国は？",
+    choices:["アメリカ","中国","ロシア","カナダ"],
+    answer:2
+  },
+
+  {
+    genre:"その他",
+    question:"地球上で最も大きい海洋は？",
+    choices:["大西洋","インド洋","太平洋","北極海"],
+    answer:2
+  },
+
+  {
+    genre:"その他",
+    question:"サッカーで1チームは何人？",
+    choices:["9人","10人","11人","12人"],
+    answer:2
+  },
+
+  {
+    genre:"その他",
+    question:"野球で1チームが守備につく人数は？",
+    choices:["8人","9人","10人","11人"],
+    answer:1
+  },
+
+  {
+    genre:"その他",
+    question:"トランプ1組はジョーカーを除いて何枚？",
+    choices:["48枚","50枚","52枚","54枚"],
+    answer:2
+  },
+
+  {
+    genre:"その他",
+    question:"日本円の通貨記号は？",
+    choices:["$","€","¥","£"],
+    answer:2
+  },
+
+  // =====================
+  // コハル特別 前半
+  // =====================
+
+  {
+    genre:"コハル特別",
+    question:"コハルが最も警戒しているものは？",
+    choices:["補習","先生","えっちな本","宿題"],
+    answer:2
+  },
+
+  {
+    genre:"コハル特別",
+    question:"コハルが問題文を見て赤くなった理由は？",
+    choices:["難しい","眠い","意味深だった","暑い"],
+    answer:2
+  },
+
+  {
+    genre:"コハル特別",
+    question:"コハルの第一声として最もそれっぽいのは？",
+    choices:[
+      "任せてください",
+      "えっちな問題は禁止です！",
+      "お腹空きました",
+      "帰ります"
+    ],
+    answer:1
+  },
+
+  {
+    genre:"コハル特別",
+    question:"コハルが最も嫌がりそうな教科は？",
+    choices:["数学","国語","保健体育","英語"],
+    answer:2
+  },
+
+  {
+    genre:"コハル特別",
+    question:"この問題集の厚さが1000ページだったら？",
+    choices:["喜ぶ","読む","燃やす","泣く"],
+    answer:3
+  },
+
+  // =====================
+  // コハル特別 後半
+  // =====================
+
+  {
+    genre:"コハル特別",
+    question:"先生が怪しい雑誌を持っていたら？",
+    choices:[
+      "見逃す",
+      "没収する",
+      "読む",
+      "売る"
+    ],
+    answer:1
+  },
+
+  {
+    genre:"コハル特別",
+    question:"テストで0点を取ったら？",
+    choices:[
+      "補習",
+      "進級",
+      "卒業",
+      "表彰"
+    ],
+    answer:0
+  },
+
+  {
+    genre:"コハル特別",
+    question:"コハルが一番言いそうなのは？",
+    choices:[
+      "平気です",
+      "余裕です",
+      "これはダメです！",
+      "知らないです"
+    ],
+    answer:2
+  },
+
+  {
+    genre:"コハル特別",
+    question:"コハルが見つけた封筒の中身は？",
+    choices:[
+      "成績表",
+      "請求書",
+      "怪しい写真",
+      "クーポン"
+    ],
+    answer:2
+  },
+
+  {
+    genre:"コハル特別",
+    question:"補習授業部の活動内容として正しいものは？",
+    choices:[
+      "補習",
+      "銀行経営",
+      "温泉開発",
+      "宇宙開発"
+    ],
+    answer:0
+  }
+
+];
+
+/* =====================
+   高校入試レベル
+===================== */
+
+const pastExamQuestions = [
+
+  {
+    genre:"高校入試",
+    question:"√50を簡単にすると？",
+    choices:["5√2","10√5","25√2","2√5"],
+    answer:0
+  },
+
+  {
+    genre:"高校入試",
+    question:"x²−9を因数分解すると？",
+    choices:[
+      "(x-3)(x+3)",
+      "(x-9)(x+1)",
+      "(x-3)²",
+      "(x+9)(x-1)"
+    ],
+    answer:0
+  },
+
+  {
+    genre:"高校入試",
+    question:"一次関数 y=2x+3 のとき x=4 の値は？",
+    choices:["8","9","10","11"],
+    answer:3
+  },
+
+  {
+    genre:"高校入試",
+    question:"確率：赤2白3の玉から赤を引く確率は？",
+    choices:["1/5","2/5","3/5","2/3"],
+    answer:1
+  },
+
+  {
+    genre:"高校入試",
+    question:"英語：I have lived here ___ 3 years.",
+    choices:["since","for","at","during"],
+    answer:1
+  },
+
+  {
+    genre:"高校入試",
+    question:"英語：比較級として正しいものは？",
+    choices:[
+      "more tall",
+      "taller",
+      "most tall",
+      "tallest"
+    ],
+    answer:1
+  },
+
+  {
+    genre:"高校入試",
+    question:"理科：酸素の元素記号は？",
+    choices:["O","H","N","C"],
+    answer:0
+  },
+
+  {
+    genre:"高校入試",
+    question:"理科：電流の単位は？",
+    choices:["A","V","W","Ω"],
+    answer:0
+  },
+
+  {
+    genre:"高校入試",
+    question:"社会：楽市楽座を行った人物は？",
+    choices:[
+      "豊臣秀吉",
+      "織田信長",
+      "徳川家康",
+      "武田信玄"
+    ],
+    answer:1
+  },
+
+  {
+    genre:"高校入試",
+    question:"社会：日本の標準時子午線が通る市は？",
+    choices:[
+      "明石市",
+      "神戸市",
+      "大阪市",
+      "姫路市"
+    ],
+    answer:0
+  }
+
+];
+
+/* =====================
+   高校2年レベル
+===================== */
+
+const highSchoolQuestions = [
+
+  {
+    genre:"高校2年",
+    question:"二次関数 y=x²-4x+3 の頂点は？",
+    choices:[
+      "(2,-1)",
+      "(-2,-1)",
+      "(2,1)",
+      "(-2,1)"
+    ],
+    answer:0
+  },
+
+  {
+    genre:"高校2年",
+    question:"sin30° の値は？",
+    choices:[
+      "1/2",
+      "√2/2",
+      "√3/2",
+      "1"
+    ],
+    answer:0
+  },
+
+  {
+    genre:"高校2年",
+    question:"log₂8 の値は？",
+    choices:["2","3","4","8"],
+    answer:1
+  },
+
+  {
+    genre:"高校2年",
+    question:"等差数列 3,7,11... 第10項は？",
+    choices:["35","39","43","47"],
+    answer:1
+  },
+
+  {
+    genre:"高校2年",
+    question:"等比数列 2,6,18... 第5項は？",
+    choices:["54","108","162","486"],
+    answer:2
+  },
+
+  {
+    genre:"高校2年",
+    question:"I wish I ___ a bird.",
+    choices:["am","was","were","be"],
+    answer:2
+  },
+
+  {
+    genre:"高校2年",
+    question:"力の単位は？",
+    choices:["J","N","Pa","W"],
+    answer:1
+  },
+
+  {
+    genre:"高校2年",
+    question:"DNAを構成する糖は？",
+    choices:[
+      "リボース",
+      "デオキシリボース",
+      "グルコース",
+      "スクロース"
+    ],
+    answer:1
+  },
+
+  {
+    genre:"高校2年",
+    question:"ルネサンス発祥の地は？",
+    choices:[
+      "イタリア",
+      "ドイツ",
+      "イギリス",
+      "フランス"
+    ],
+    answer:0
+  },
+
+  {
+    genre:"高校2年",
+    question:"市場価格を決める基本要因は？",
+    choices:[
+      "需要と供給",
+      "法律",
+      "人口",
+      "GDP"
+    ],
+    answer:0
+  }
+
+];
+
+/* =====================
+   ゲーム状態
+===================== */
+
+let quizList = [];
+let currentIndex = 0;
+let playerScore = 0;
+let currentFace = "normal";
+
+let enemyTimer = null;
+let enemyFrame = 0;
+
+/* =====================
+   音声
+===================== */
+
+const sounds = {
+  bgmMenu: new Audio("audio/bgm_menu.mp3"),
+  bgmStage: new Audio("audio/bgm_stage.mp3"),
+  bgmJigoku: new Audio("audio/bgm_stagejigoku.mp3"),
+
+  seSeikai: new Audio("audio/se_seikai.mp3"),
+  seHuseikai: new Audio("audio/se_huseikai.mp3"),
+  seClear: new Audio("audio/se_clear.mp3"),
+  seGameover: new Audio("audio/se_gameover.mp3")
+};
+
+sounds.bgmMenu.loop = true;
+sounds.bgmStage.loop = true;
+sounds.bgmJigoku.loop = true;
+
+sounds.bgmMenu.volume = 0.45;
+sounds.bgmStage.volume = 0.4;
+sounds.bgmJigoku.volume = 0.45;
+
+sounds.seSeikai.volume = 0.8;
+sounds.seHuseikai.volume = 0.8;
+sounds.seClear.volume = 0.85;
+sounds.seGameover.volume = 0.85;
+
+function stopAllBgm() {
+  sounds.bgmMenu.pause();
+  sounds.bgmStage.pause();
+  sounds.bgmJigoku.pause();
+
+  sounds.bgmMenu.currentTime = 0;
+  sounds.bgmStage.currentTime = 0;
+  sounds.bgmJigoku.currentTime = 0;
+}
+
+function playBgm(bgm) {
+  stopAllBgm();
+  bgm.currentTime = 0;
+  bgm.play().catch(() => {});
+}
+
+function playSe(se) {
+  se.currentTime = 0;
+  se.play().catch(() => {});
+}
+
+/* =====================
+   モード選択
+===================== */
+
+function selectMode(mode) {
+
+  currentMode = mode;
+
+  if (mode === "akaten") {
+    document.body.classList.remove("vs-mode");
+  } else {
+    document.body.classList.add("vs-mode");
+  }
+
+  if (mode === "hell") {
+    playBgm(sounds.bgmJigoku);
+  } else {
+    playBgm(sounds.bgmStage);
+  }
+
+  document.getElementById("titleScreen")
+    .style.display = "none";
+
+  document.getElementById("gameScreen")
+    .style.display = "block";
+
+  startGame();
+
+}
+
+/* =====================
+   タイトルへ戻る
+===================== */
+
+function backToTitle() {
+
+  clearInterval(enemyTimer);
+
+  document.body.classList.remove("vs-mode");
+
+  document.getElementById("gameScreen")
+    .style.display = "none";
+
+  document.getElementById("titleScreen")
+    .style.display = "block";
+
+  document.getElementById("enemyCharacter")
+    .style.display = "none";
+
+  const enemyBg =
+    document.getElementById("enemyBg");
+
+  if (enemyBg) {
+    enemyBg.style.display = "none";
+  }
+
+  playBgm(sounds.bgmMenu);
+
+}
+
+/* =====================
+   問題生成
+===================== */
+
+function createQuiz(mode) {
+
+  const setting =
+    modeSettings[mode];
+
+  const list = [];
+
+  list.push(
+    ...shuffle(normalQuestions)
+      .slice(0, setting.normal)
+  );
+
+  list.push(
+    ...shuffle(pastExamQuestions)
+      .slice(0, setting.exam)
+  );
+
+  list.push(
+    ...shuffle(highSchoolQuestions)
+      .slice(0, setting.high)
+  );
+
+  return shuffle(list);
+
+}
+
+/* =====================
+   表情変更
+===================== */
+
+function setFace(type) {
+
+  currentFace = type;
+
+  const koharu =
+    document.getElementById("koharu");
+
+  if (type === "normal") {
+    koharu.src = "images/koharu_normal.png";
+  }
+
+  if (type === "happy") {
+    koharu.src = "images/koharu_happy.png";
+  }
+
+  if (type === "wrong") {
+    koharu.src = "images/koharu_wron.png";
+  }
+
+  if (type === "funny") {
+    koharu.src = "images/koharu_body.png";
+  }
+
+}
+
+/* =====================
+   羽アニメーション
+===================== */
+
+let wingOpen = false;
+
+setInterval(() => {
+
+  wingOpen = !wingOpen;
+
+  const leftWing =
+    document.getElementById("leftWing");
+
+  const rightWing =
+    document.getElementById("rightWing");
+
+  if (!leftWing || !rightWing) return;
+
+  if (wingOpen) {
+
+    leftWing.style.transform =
+      "rotate(-14deg) translateY(-4px)";
+
+    rightWing.style.transform =
+      "rotate(14deg) translateY(-4px)";
+
+  } else {
+
+    leftWing.style.transform =
+      "rotate(2deg) translateY(2px)";
+
+    rightWing.style.transform =
+      "rotate(-2deg) translateY(2px)";
+
+  }
+
+}, 260);
+
+/* =====================
+   VSキャラアニメーション
+===================== */
+
+function startEnemyAnimation() {
+
+  const setting =
+    modeSettings[currentMode];
+
+  const enemy =
+    setting.enemy;
+
+  const img =
+    document.getElementById("enemyCharacter");
+
+  const bg =
+    document.getElementById("enemyBg");
+
+  clearInterval(enemyTimer);
+
+  enemyFrame = 0;
+
+  if (!enemy) {
+
+    img.style.display = "none";
+ 
+    bg.style.display = "none";
+
+    return;
+  }
+
+  const frames =
+    enemyImages[enemy];
+
+  bg.src =
+  enemyBackgrounds[enemy];
+
+  bg.style.display =
+    "block";
+
+  img.src = frames[0];
+  img.style.display = "block";
+
+  enemyTimer =
+    setInterval(() => {
+
+      enemyFrame =
+        (enemyFrame + 1) % 2;
+
+      img.src =
+        frames[enemyFrame];
+
+    }, 500);
+
+}
+
+/* =====================
+   ゲーム開始
+===================== */
+
+function startGame() {
+
+  const setting =
+    modeSettings[currentMode];
+
+  quizList =
+    createQuiz(currentMode);
+
+  currentIndex = 0;
+  playerScore = 0;
+
+  document.getElementById("modeTitle")
+    .textContent =
+    setting.name;
+
+  const clearCount =
+    Math.ceil(setting.total * setting.clearRate);
+
+  document.getElementById("modeInfo")
+    .textContent =
+    `${setting.total}問中${clearCount}問正解でクリア`;
+
+  document.getElementById("result")
+    .textContent = "";
+
+  document.getElementById("score")
+    .textContent = "";
+
+  setFace("normal");
+
+  startEnemyAnimation();
+
+  showQuestion();
+}
+
+/* =====================
+   問題表示
+===================== */
+
+function showQuestion() {
+
+  const q =
+    quizList[currentIndex];
+
+  if (q.genre === "コハル特別") {
+    setFace("funny");
+  } else {
+    setFace("normal");
+  }
+
+  document.getElementById("status")
+    .textContent =
+    `第${currentIndex + 1}問 / ${quizList.length}　ジャンル：${q.genre}`;
+
+  document.getElementById("question")
+    .textContent =
+    q.question;
+
+  document.getElementById("result")
+    .textContent = "";
+
+  document.getElementById("score")
+    .textContent =
+    `現在の正解数：${playerScore}問`;
+
+  const choicesDiv =
+    document.getElementById("choices");
+
+  choicesDiv.innerHTML = "";
+
+  q.choices.forEach((choice, index) => {
+
+    const btn =
+      document.createElement("button");
+
+    btn.textContent =
+      choice;
+
+    btn.onclick = () => {
+      checkAnswer(index);
+    };
+
+    choicesDiv.appendChild(btn);
+
+  });
+
+}
+
+/* =====================
+   回答判定
+===================== */
+
+function checkAnswer(selectedIndex) {
+
+  const q =
+    quizList[currentIndex];
+
+  if (selectedIndex === q.answer) {
+
+  playerScore++;
+
+  playSe(sounds.seSeikai);
+
+  document.getElementById("result")
+    .textContent =
+    "正解！";
+
+  setFace("happy");
+
+} else {
+
+  playSe(sounds.seHuseikai);
+
+  document.getElementById("result")
+    .textContent =
+    `不正解！正解は「${q.choices[q.answer]}」でした。`;
+
+  setFace("wrong");
+
+}
+
+  currentIndex++;
+
+  setTimeout(() => {
+
+    if (currentIndex >= quizList.length) {
+      endGame();
+    } else {
+      showQuestion();
+    }
+
+  }, 1500);
+
+}
+
+/* =====================
+   結果
+===================== */
+
+function endGame() {
+
+  const setting =
+    modeSettings[currentMode];
+
+  const clearCount =
+    Math.ceil(setting.total * setting.clearRate);
+
+  const clear =
+    playerScore >= clearCount;
+  
+  if (clear) {
+    playSe(sounds.seClear);
+  } else {
+    playSe(sounds.seGameover);
+  }
+
+  document.getElementById("status")
+    .textContent =
+    "結果発表";
+
+  if (clear) {
+
+    if (currentMode === "akaten") {
+      document.getElementById("question")
+        .textContent =
+        "赤点回避成功！";
+    } else {
+      document.getElementById("question")
+        .textContent =
+        `${setting.name} クリア！`;
+    }
+
+    setFace("happy");
+
+  } else {
+
+    if (currentMode === "akaten") {
+      document.getElementById("question")
+        .textContent =
+        "赤点です……補習確定！";
+    } else {
+      document.getElementById("question")
+        .textContent =
+        `${setting.name} 敗北……`;
+    }
+
+    setFace("wrong");
+
+  }
+
+  document.getElementById("choices")
+    .innerHTML =
+    `
+    <button onclick="startGame()">
+      もう一度挑戦
+    </button>
+
+    <button onclick="backToTitle()">
+      タイトルへ戻る
+    </button>
+    `;
+
+  document.getElementById("result")
+    .textContent =
+    "";
+
+  document.getElementById("score")
+    .textContent =
+    `結果：${quizList.length}問中${playerScore}問正解 / クリア条件：${clearCount}問`;
+
+}
+
+/* =====================
+   シャッフル
+===================== */
+
+function shuffle(array) {
+
+  return [...array]
+    .sort(() => Math.random() - 0.5);
+
+}
+
+</script>
+
+</body>
+</html>
+
